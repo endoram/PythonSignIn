@@ -1,12 +1,12 @@
 #!/bin/python
 import mysql.connector			#Import the mysql libray that allows us to connect to the database
-import re, datetime, subprocess				#Import re to handle strings and datetime to get current date and time
+import re, datetime, subprocess		#Import re to handle strings and datetime to get current date and time
 
 f = open("password","r")		#Open the file for the mysql database password
 userpass = f.readlines()
 userpass = [x.strip() for x in userpass]
 userpass = ''.join(userpass)
-f.close()						#Close the file
+f.close()				#Close the file
 
 
 def check(userinput):
@@ -29,7 +29,7 @@ def addtosheet(name, userinput):
 	gettime()
 	date = now.strftime("%Y-%m-%d")			#Strips down to get year month date
 	
-	gettime()								#Refresh the var to get hour min second
+	gettime()					#Refresh the var to get hour min second
 	time = now.strftime("%H:%M:%S")
 	
 	#Connects to database
@@ -39,14 +39,14 @@ def addtosheet(name, userinput):
 	#MYSQL Command / our query
 	query = ("SELECT capid FROM TuesdayMeeting WHERE capid={} AND date='{}';".format(userinput, date))
 	
-	cursor.execute(query)			#Execute the query
+	cursor.execute(query)		#Execute the query
 	rows = cursor.fetchall()
 	if rows == []:			#If nothing is returned:
 		
 		#Ths query add the user scanned to the TuesdayMeeting table in the BoiseCAP073 database
 		query = ("INSERT INTO TuesdayMeeting (date, capid, name, time_in) VALUES ('{0}', '{1}', '{2}', '{3}');".format(date, userinput, name, time))
 		cursor.execute(query)
-		cnx.commit()					#If we dont commit our changes will not be recognized when we SELECT * next
+		cnx.commit()				#If we dont commit our changes will not be recognized when we SELECT * next
 		subprocess.call(["clear"])
 		print(name)
 		print("Member signed in")
@@ -109,7 +109,7 @@ def readbarcode():
 	'''The read barcode function takes in userinput'''
 	userinput = raw_input("Please enter CAP ID:")
 	check(userinput)        #Validates user input might be a cap ID
-	connect(userinput)			#Pass the var userinput into the connect function
+	connect(userinput)	#Pass the var userinput into the connect function
 	
 
 
@@ -119,13 +119,14 @@ def connect(userinput):
 	cnx = mysql.connector.connect(user='root', password=userpass, host='localhost', database='BoiseCAP073')
 	cursor = cnx.cursor()
 	
-	query = ("SELECT First_name, Last_name FROM SQmembers WHERE capid={};".format(userinput))		#Check if your cap id is in the database
+	#Check if your cap id is in the database
+	query = ("SELECT First_name, Last_name FROM SQmembers WHERE capid={};".format(userinput))
 	
 
 	cursor.execute(query)
 
 	rows = cursor.fetchall()
-	if rows == []:adduser(userinput)	#Check if there is anything from the query
+	if rows == []:adduser(userinput)		#Check if there is anything from the query
 	
 	cursor.execute(query)
 	for (Last_name) in cursor:
@@ -139,7 +140,7 @@ def connect(userinput):
 		
 	cursor.close()
 	cnx.close()
-	addtosheet(name, userinput)		#If a vaild user is present then it will go back up to add to sheet
+	addtosheet(name, userinput)			#If a vaild user is present then it will go back up to add to sheet
 
 #Keeps program running
 while True:
